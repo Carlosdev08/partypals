@@ -1,11 +1,15 @@
-import Image from "next/image";
+
+import HomePage from "@/components/HomePage";
+import { ProvideAuth } from "@/context/ProvideAuth";
+
 import React from "react";
 
-export default function page() {
+      function page() {
   return (
-    <main className="text-center font-semibold font-Outfit ">
-      <h1>Party Pals</h1>
-      <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-    </main>
+    <ProvideAuth>
+<HomePage/>      
+    </ProvideAuth>
   );
 }
+
+export default page;
