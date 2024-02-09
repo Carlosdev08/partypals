@@ -1,13 +1,13 @@
-
 import HomePage from "@/components/HomePage";
 import { ProvideAuth } from "@/context/ProvideAuth";
 
 import React from "react";
 
-      function page() {
+function page() {
   return (
     <ProvideAuth>
-<HomePage/>      
+      <HomePage />
+          
     </ProvideAuth>
   );
 }

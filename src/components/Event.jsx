@@ -1,6 +1,8 @@
+"use client";
+
 import { PartyPopper } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { PureComponent } from "react";
 
 const Eevent = () => {
   return (
@@ -53,7 +55,7 @@ const Eevent = () => {
                 de un Cumpleaño único
               </span>
             </div>
-            <div className="bg-pink-800 w-64 h-64 rounded text-center flex flex-col items-center justify-center">
+            <div className="bg-[#e810c1] w-96 h-96 rounded text-center flex flex-col items-center justify-center">
             <Image className="rounded w-20 h-20"
                 src="/xanadu_bar.jpg"
                 alt="party"
@@ -67,7 +69,29 @@ const Eevent = () => {
               </span>
               
             </div>
+            <div  className="bg-[#e810c1] w-96 h-96 rounded-lg border text-center flex flex-col items-center justify-center mt-8">
+              <Image src="/serviciosCatering.png" alt="party"
+                width={400}
+                height={400}
+                objectFit="contain" />
+              <h2 className="font-outfit text-lg">Eventos Familiares</h2>
+              <span className="font">
+                Celebra tus eventos familiares en nuestro centro. Disfruta de
+                nuestros servicios de catering.
+              </span>
+            </div>
+            <div className="bg-[rgb(232,16,193)] w-96 h-96 rounded-xl text-center flex flex-col items-center justify-center mt-8">
+              <Image src="/eventHall.jpg" alt="party"
+                width={200}
+                height={200}
+                objectFit="contain" />
+              <h2 className="font-outfit text-lg">Nuestras decoraciones</h2>
+              <span>
+                Celebra tus eventos empresariales en nuestro centro. Disfruta de
+                nuestros servicios de con una decoración excelente.
+              </span>
           </div>
+        </div>
         </article>
       </div>
     </>

@@ -8,6 +8,7 @@ const firebaseConfig = {
   storageBucket: "partypals",
   messagingSenderId: "1073635166748",
   appId: "1:1073635166748:web:ec4672e62d088c5ea62dd9",
+  measurementId: "G-NTNG06W7HJ"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -15,4 +16,4 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-export { auth, provider };
+export { auth, provider};

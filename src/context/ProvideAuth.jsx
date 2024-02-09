@@ -1,5 +1,7 @@
+"use client";
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import {auth} from "../lib/firebase-client-config";
 
 
 
@@ -13,13 +15,12 @@ export function ProvideAuth({ children }) {
 function useProvideAuth() {
     const [user, setUser] = useState(null);
     
-    // Utiliza useEffect para evitar efectos secundarios en el renderizado
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(getAuth(), (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged((auth), (firebaseUser) => {
             if (firebaseUser) {
                 setUser(firebaseUser);
             } else {
-                setUser(null);
+                setUser();
             }
         });
 
@@ -28,13 +29,14 @@ function useProvideAuth() {
     }, []);
 
     // Función para cerrar la sesión del usuario
-    const signout = () => {
-        return signOut(getAuth()).then(() => {
+    const signout = async () => {
+        try {
+            await signOut(getAuth(auth));
             // Se actualiza el estado del usuario a null cuando cierra sesión
             setUser(null);
-        }).catch((error) => {
+        } catch (error) {
             console.error("Error signing out:", error);
-        });
+        }
     };
 
     return { user, signout };

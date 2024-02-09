@@ -1,10 +1,11 @@
 "use client";
 
 import { signInWithRedirect } from "firebase/auth";
+import { GoogleAuthProvider } from 'firebase/auth';
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-import { auth, provider } from "../../lib/firebase-config";
+import { auth, provider } from "@/lib/firebase-config";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import CommonForm from "@/components/CommonForm";
@@ -25,7 +26,7 @@ export default function Page() {
       return;
     }
 
-    setError(""); // Clear the error state on successful registration
+    setError(""); 
     RegisterWithEmail(data);
   };
 
@@ -39,19 +40,20 @@ export default function Page() {
       if (res.ok) {
         const result = await res.json();
         console.log(result);
-        setError(""); // Clear the error state on successful registration
+        setError(""); 
         router.push("/login");
       } else {
         const errorResponse = await res.json();
         console.error(errorResponse);
-        setError("Registration failed. Please check your credentials."); // Set the error state
+        setError("Registration failed. Please check your credentials.");
       }
     } catch (error) {
       console.error("Error during registration:", error);
-      setError("An unexpected error occurred. Please try again."); // Set the error state
+      setError("An unexpected error occurred. Please try again."); 
     }
   };
-
+  const provider = new GoogleAuthProvider();
+  
   function signInWithGoogle() {
     signInWithRedirect(auth, provider);
   }
