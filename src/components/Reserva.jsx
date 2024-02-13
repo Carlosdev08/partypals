@@ -13,7 +13,10 @@ import { Fomdata } from "autoprefixer";
 import { useFormContextExtended } from '@/context/FormContext';
 import FormControl from "./ui/forms/FormControl";
 import { set } from "date-fns";
-import {PaymentForm} from "@/components/PaymentForm";
+import PaymentForm from "@/components/PaymentForm";
+import { loadStripe } from '@stripe/stripe-js';
+
+const publicKey = 'pk_test_51OjLmYDgG3hqUqPFdGVcsA1iiBh8PT4WDVw182YsmJuMPKvvF5za9Z5nBkjpCHndiSZ96v8R4YYcC38aN1bjQJcG00QqWSsVbb';
 
 const ReservaSchema = z.object({
   
@@ -49,6 +52,26 @@ const Reserva = () => {
   async function onSubmit(formData) {
     formData.priceTotal = priceTotal;
     console.log("Enviando formulario", formData);
+  
+    // Carga Stripe
+    const stripe = await loadStripe(publicKey);
+  
+    // Crea un PaymentIntent
+    const { error } = await stripe.redirectToCheckout({
+      lineItems: [{ price: 'price_1JH2D2Hh5FZ2R4Y7fTSzItVU', quantity: numChildren }],
+      mode: 'payment',
+      successUrl: 'http://localhost:3000/pagoExitoso',
+      cancelUrl: 'http://localhost:3000/pagoCancelado',
+    });
+  
+    if (error) {
+      console.error('Error creando PaymentIntent:', error);
+      return;
+    }
+  
+    // Guarda el ID del PaymentIntent en formData
+    formData.paymentIntentId = paymentIntent.id;
+  
     const functions = getFunctions();
     const reservaFunction = httpsCallable(functions, "reservations");
    
@@ -70,7 +93,7 @@ const Reserva = () => {
         className="w-full max-w-md mx-auto bg-white p-8 border border-gray-300 rounded"
       >
         <div className="flex  flex-col  gap-5  items-center justify-around"> 
-       <PaymentForm />
+  
 <FormControl
   name="phone"
   label="Phone Number"
@@ -127,6 +150,7 @@ const Reserva = () => {
           
           <p>Precio total: {priceTotal.toFixed(2)}€</p>
           <Button type="submit">Reservar</Button>
+          <PaymentForm />
         </div>
       </form>
     </div>

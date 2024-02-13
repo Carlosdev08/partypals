@@ -5,7 +5,7 @@ const PaymentForm = () => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event) => {b
     event.preventDefault();
 
     if (!stripe || !elements) {
@@ -30,8 +30,8 @@ const PaymentForm = () => {
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: 'https://tuSitio.com/pagoExitoso',
-        payment_method_data: {
+        return_url: 'http://localhost:3000/pagoExitoso', 
+               payment_method_data: {
           billing_details: {
             name: 'Jenny Rosen',
             email: 'jenny.rosen@example.com',
