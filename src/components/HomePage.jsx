@@ -5,7 +5,7 @@ import { FormContextProvider } from "@/context/FormContext";
 
 const HomePage = () => {
   return (
-    <FormContextProvider defaultValues={{ dob: undefined }}>
+    <FormContextProvider defaultValues={{}}>
     
       <div className="  flex flex-col justify-center items-center text-center  min-h-sv ">
         <div className=" bg-pink-800 text-white pt-5 w-1/2 h-1/2 rounded">
@@ -21,7 +21,7 @@ const HomePage = () => {
         </article>
         <div className="grid items-start"> 
 
-        <CalendarHome />
+     
         </div>
        
       </div>

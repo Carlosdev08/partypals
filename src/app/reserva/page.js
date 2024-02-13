@@ -1,14 +1,13 @@
-import Reserva from '@/components/Reserva'
-import React from 'react'
-import { FormContextProvider } from '@/context/FormContext'
+import React from 'react';
+import Reserva from "@/components/Reserva";
+import { FormContextProvider } from "@/context/FormContext";
 
 const page = () => {
   return (
-    <FormContextProvider defaultValues={{ dob: undefined }}>
+    <FormContextProvider >
+      <Reserva />
+    </FormContextProvider>
+  );
+};
 
-  <Reserva/>
-  </FormContextProvider>
-  )
-}
-
-export default page
+export default page;

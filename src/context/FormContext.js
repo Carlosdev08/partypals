@@ -1,38 +1,26 @@
 "use client";
 import React, { createContext, useContext } from 'react';
-import { useForm, FormProvider as RHFFormProvider } from 'react-hook-form';
-import { z } from 'zod';
+import { useForm } from 'react-hook-form';
 
-const FormContext = createContext();
+export const FormContext = createContext();
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export const useFormContextExtended = () => useContext(FormContext);
-
-const formSchema = z.object({
-  dob: z.date().optional().refine((date) => date <= new Date(), {
-    message: "Date of birth cannot be in the future.",
-  }),
-});
-
-export const FormContextProvider = ({ children, defaultValues }) => {
+export const FormContextProvider = ({ children, schema, defaultValues}) => {
   const methods = useForm({
-    defaultValues,
-    resolver: async (data) => {
-      try {
-        const values = await  formSchema.parse(data);
-        return { values, errors: {} };
-      } catch (error) {
-        return { values: {}, errors: error.formErrors.fieldErrors };
-      }
-    },
+    resolver: zodResolver(schema),
+    defaultValues: defaultValues
   });
-
   return (
-    <RHFFormProvider {...methods}>
-      <FormContext.Provider value={{ ...methods }}>
-        {children}
-      </FormContext.Provider>
-    </RHFFormProvider>
+    <FormContext.Provider value={methods}>
+      {children}
+    </FormContext.Provider>
   );
 };
 
-export default FormContextProvider;
+export const useFormContextExtended = () => {
+  const context = useContext(FormContext);
+  if (!context) {
+    throw new Error('useFormContextExtended must be used within a FormContextProvider');
+  }
+  return context;
+};

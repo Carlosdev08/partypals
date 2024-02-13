@@ -1,4 +1,6 @@
 import { doc } from "firebase/firestore";
+import {useForm} from "react-hook-form";
+import { db } from "@/lib/firebase-config";
 
 export default function Form({ fields }) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();

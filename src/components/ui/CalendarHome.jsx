@@ -28,7 +28,7 @@ export function CalendarForm() {
     resolver: zodResolver(FormSchema),
   });
 
-  const dobValue = watch("dob"); // Observa el valor de 'dob'
+  const dobValue = watch("dob");
 
   const onSubmit = (data) => {
     toast(
@@ -74,9 +74,10 @@ export function CalendarForm() {
         <p>Your date of birth is used to calculate your age.</p>
         {errors.dob && <p>{errors.dob.message}</p>}
       </div>
-      <Button type="submit">Aceptar</Button>
+      <Button onSubmit type="submit">Aceptar</Button>
     </form>
   );
+  
 }
-
+console.log(Button);
 export default CalendarForm;
