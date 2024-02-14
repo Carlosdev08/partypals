@@ -1,25 +1,17 @@
+
 "use client";
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import "firebase/firestore";
 import { collection, addDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { number, z } from "zod";
+import { z } from "zod";
 import { db } from "@/lib/firebase-config";
-import { Button } from "@/components/ui/button";
-import Form from "./ui/forms/Forms";
-import { Fomdata } from "autoprefixer";
+import PaymentForm from "./ui/PaymentForm"; // Asegúrate de que la ruta es correcta
 import { useFormContextExtended } from '@/context/FormContext';
-import FormControl from "./ui/forms/FormControl";
-import { set } from "date-fns";
-import PaymentForm from "@/components/PaymentForm";
-import { loadStripe } from '@stripe/stripe-js';
-
-const publicKey = 'pk_test_51OjLmYDgG3hqUqPFdGVcsA1iiBh8PT4WDVw182YsmJuMPKvvF5za9Z5nBkjpCHndiSZ96v8R4YYcC38aN1bjQJcG00QqWSsVbb';
 
 const ReservaSchema = z.object({
-  
   date: z.string().min(1, "Date is required"),
   sectionSchedule: z.enum(
     ["14-16", "16-18", "18-20"],
@@ -36,10 +28,11 @@ const Reserva = () => {
     register,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors },
     reset,
-  } = useFormContextExtended();
+  } = useForm({
+    resolver: zodResolver(ReservaSchema)
+  });
 
   const numChildren = watch("numChildren", 0);
   const price = 16.90;
@@ -48,30 +41,17 @@ const Reserva = () => {
   useEffect(() => {
     setPriceTotal(numChildren * price);
   }, [numChildren]);
+  const [paymentData, setPaymentData] = useState(null);
+
+  const handlePaymentSubmit = (data) => {
+    setPaymentData(data);
+  };
+
+  <PaymentForm onSubmit={handlePaymentSubmit} />
 
   async function onSubmit(formData) {
     formData.priceTotal = priceTotal;
     console.log("Enviando formulario", formData);
-  
-    // Carga Stripe
-    const stripe = await loadStripe(publicKey);
-  
-    // Crea un PaymentIntent
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: [{ price: 'price_1JH2D2Hh5FZ2R4Y7fTSzItVU', quantity: numChildren }],
-      mode: 'payment',
-      successUrl: 'http://localhost:3000/pagoExitoso',
-      cancelUrl: 'http://localhost:3000/pagoCancelado',
-    });
-  
-    if (error) {
-      console.error('Error creando PaymentIntent:', error);
-      return;
-    }
-  
-    // Guarda el ID del PaymentIntent en formData
-    formData.paymentIntentId = paymentIntent.id;
-  
     const functions = getFunctions();
     const reservaFunction = httpsCallable(functions, "reservations");
    
@@ -82,57 +62,48 @@ const Reserva = () => {
     } catch (error) {
       console.error("Error enviando los datos de la reserva: ", error);
     }
+  }async function onSubmit(formData) {
+  const combinedData = {
+    ...formData,
+    priceTotal: priceTotal,
+    ...paymentData,
+    reset,
+  };
+
+  console.log("Enviando formulario", combinedData);
+  
+  try {
+    await sendReservationData(combinedData);
+    console.log("Reserva guardada con éxito");
+    reset();
+  } catch (error) {
+    console.error("Error enviando los datos de la reserva: ", error);
   }
+}
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-gray-100 mt-44">
-      <h2>Hola desde reserva</h2>
-      
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-md mx-auto bg-white p-8 border border-gray-300 rounded"
-      >
-        <div className="flex  flex-col  gap-5  items-center justify-around"> 
-  
-<FormControl
-  name="phone"
-  label="Phone Number"
-  type="tel"
-  {...register("firstName", { required: "This field is required" })}
-/>
-<FormControl
-  name="nameChildren"
-  label="Childrens Name"
-  type="text"
-  {...register("firstName", { required: "This field is required" })}
-/>
-<FormControl
-  name="surnameChildren"
-  label="Childrens Surname"
-  type="text"
-/>
-<FormControl
-  name="allergies"
-  label="Childrens Allergies"
-  type="text"
-/>
-</div>
-        <div className="flex flex-col gap-5 p-8 m-5 border rounded-xl w-full bg-gray-300 text-center">
-          <input {...register("date")} type="date" />
-          {errors.date && <span>{errors.date.message}</span>}
+    <div className="w-full max-w-md  p-8 border rounded">
+      <h2 className="text-xl text-center font-bold mb-6">Realizar Reserva</h2>
+      <div className="max-w-md mx-auto bg-white p-6 shadow-md rounded-lg">
+      <PaymentForm onSubmit={handlePaymentSubmit} />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+          <input
+            {...register("date")}
+            type="date"
+            className="w-full px-3 py-2 border rounded"
+          />
+          {errors.date && <p className="text-red-500">{errors.date.message}</p>}
           <select
             {...register("sectionSchedule")}
-            className="text-center mb-5 p-4 bg-black text-white"
+            className="w-full px-3 py-2 border rounded bg-white text-black"
           >
             <option value="">Seleccione un tramo horario</option>
             <option value="14-16">14:00 - 16:00</option>
             <option value="16-18">16:00 - 18:00</option>
             <option value="18-20">18:00 - 20:00</option>
           </select>
-          {errors.sectionSchedule && (
-            <span>{errors.sectionSchedule.message}</span>
-          )}
-          <label htmlFor="numChildren">
+          {errors.sectionSchedule && <p className="text-red-500">{errors.sectionSchedule.message}</p>}
+          <label htmlFor="numChildren" className="block">
             Número de niños
             <input
               {...register("numChildren", {
@@ -143,16 +114,20 @@ const Reserva = () => {
               type="number"
               min="1"
               max="40"
-              
+              className="w-full px-3 py-2 border rounded"
             />
-            {errors.numChildren && <span>{errors.numChildren.message}</span>}
           </label>
+          {errors.numChildren && <p className="text-red-500">{errors.numChildren.message}</p>}
           
-          <p>Precio total: {priceTotal.toFixed(2)}€</p>
-          <Button type="submit">Reservar</Button>
-          <PaymentForm />
-        </div>
-      </form>
+          <p className="text-lg">Precio total: {priceTotal.toFixed(2)}€</p>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Reservar
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
@@ -161,6 +136,7 @@ const sendReservationData = async (formData) => {
   try {
     const docRef = await addDoc(collection(db, "reservations"), formData);
     console.log("Document written with ID: ", docRef.id);
+
   } catch (e) {
     console.error("Error adding document: ", e);
   }
