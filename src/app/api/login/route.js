@@ -88,7 +88,7 @@ export async function POST(request, response){
             return await handleEmailAndPassword(email, password);
         }
     }catch(error){
-        // console.error("Error during login:", error);
+        console.error("Error during login:", error);
         return NextResponse.json({error: "Internal Server Error"}, {status: 500});
     }
 

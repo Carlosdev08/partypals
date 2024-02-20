@@ -12,51 +12,41 @@ import CommonForm from "@/components/CommonForm";
 
 export default function Page() {
   const router = useRouter();
+  const { formState: { errors } } = useForm();
+  const [error, setError] = useState('');
 
-  const {
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const [error, setError] = useState("");
-
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (data.password !== data.confirmPassword) {
-      setError("Passwords do not match.");
+      setError('Passwords do not match.');
       return;
     }
 
-    setError(""); 
-    RegisterWithEmail(data);
-  };
-
-  const RegisterWithEmail = async (data) => {
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        body: JSON.stringify(data ? data : {}),
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
       if (res.ok) {
         const result = await res.json();
         console.log(result);
-        setError(""); 
-        router.push("/login");
+        router.push('/reserva');
       } else {
         const errorResponse = await res.json();
-        console.error(errorResponse);
-        setError("Registration failed. Please check your credentials.");
+        setError(errorResponse.error || 'Registration failed. Please check your credentials.');
       }
     } catch (error) {
-      console.error("Error during registration:", error);
-      setError("An unexpected error occurred. Please try again."); 
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
     }
   };
-  const provider = new GoogleAuthProvider();
-  
+
   function signInWithGoogle() {
     signInWithRedirect(auth, provider);
   }
+    
 
   return (
     <>
@@ -75,7 +65,8 @@ export default function Page() {
             <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12">
               Create new Account
             </h1>
-            {error && <div className="text-red-500 mt-2 mb-4">{JSON.stringify(error)}</div>}            <CommonForm
+            {error && <div className="text-red-500 mt-2 mb-4">{typeof error === 'string' ? error : JSON.stringify(error)}</div>}
+            <CommonForm
               onSubmit={onSubmit}
               buttonText="Create new Account"
               error={error}

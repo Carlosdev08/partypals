@@ -18,5 +18,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const db = getFirestore(app);
+const collectionRef = collection(db, "reserva");
 
 export { auth, provider, db };

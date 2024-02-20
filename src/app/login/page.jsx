@@ -71,9 +71,9 @@ export default function SignIn() {
             throw new Error("Login failed. Please check your credentials.");
         }
     } catch (error) {
-        console.error("Error during login:", error);
-        setError(error.message || "An unexpected error occurred. Please try again.");
-    }
+  console.error("Error during login:", error);
+  setError(error instanceof Error ? error.message : "An unexpected error occurred. Please try again.");
+}
 };
   return (
     <>

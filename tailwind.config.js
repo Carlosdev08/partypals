@@ -17,6 +17,10 @@ module.exports = {
       },
     },
     extend: {
+      backgroundImage: theme => ({
+        'background-image1': "url('/Globo background.jpg')",
+        'background-image2': "url('/fiesta-cumpleanos.jpg')",
+      }),
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -32,6 +36,7 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
+
   },
   plugins: [require("tailwindcss-animate")],
 }

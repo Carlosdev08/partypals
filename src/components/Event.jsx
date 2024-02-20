@@ -13,8 +13,8 @@ import React from "react";
 
 const Eevent = () => {
   return (
-    <>
-      <div className="flex justify-center items-center min-h-sv pb-8 mt-3">
+    <div className="bg-background-image1  bg-cover bg-center">
+      <div className="flex justify-center items-center min-h-sv pb-8 mt-3 ">
         <div className=" bg-[#22251c] text-white pt-5 w-1/2 h-1/2 rounded">
           <div className="flex items-center justify-center gap-1 p-1">
             <h1 className="text-3xl ">Celebra tus eventos con PartyPals </h1>
@@ -51,7 +51,7 @@ const Eevent = () => {
             </p>
           </div>
           <div>
-            <span className="text-black text-center flex flex-col items-center justify-center mb-5 animate-bounce font-semibold font-sans text-2xl">
+            <span className="text-blue-900 text-center flex flex-col items-center justify-center mb-5 animate-bounce font-semibold font-sans text-2xl">
               !Tu evento en el mejor centro de ocio y diversión!
             </span>
           </div>
@@ -124,7 +124,7 @@ const Eevent = () => {
           </div>
         </article>
       </div>
-    </>
+    </div>
   );
 };
 

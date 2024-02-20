@@ -1,18 +1,22 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { getFunctions, httpsCallable,  } from "firebase/functions";
 import "firebase/firestore";
-import { collection, addDoc } from "firebase/firestore";
-import { useForm } from "react-hook-form";
+import { collection, addDoc, onSnapshotsInSync } from "firebase/firestore";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { db } from "@/lib/firebase-config";
-import PaymentForm from "./ui/PaymentForm"; // Asegúrate de que la ruta es correcta
-import { useFormContextExtended } from '@/context/FormContext';
+
+import PaymentForm from "@/components/ui/PaymentForm";
+import { useFormContextExtended } from "@/context/FormContext";
+import BookingConfirmation from "@/components/BookingConfirmation";
+import { set } from "date-fns";
+
+
+import { Button } from "@/components/ui/Button";
 
 const ReservaSchema = z.object({
-  date: z.string().min(1, "Date is required"),
   sectionSchedule: z.enum(
     ["14-16", "16-18", "18-20"],
     "The time slot is required"
@@ -21,9 +25,39 @@ const ReservaSchema = z.object({
     .number()
     .min(1, "The minimum number of children is 1")
     .max(40, "The maximum number of children is 40"),
+  agechild: z
+    .number()
+    .min(1, "Age is required")
+    .max(12, "The maximum age is 12"),
+  // _childrensnack: z.string().min(1, "Snack is required"),
+  // get childrensnack() {
+  //   return this._childrensnack;
+
+
+  // },
+  // set childrensnack(value) {
+  //   this._childrensnack = value;
+  // },
+  // sectionSnack: z.enum(
+  //   [
+  //     "Merienda + bolsa de scnacks",
+  //     "Merienda + bolsa de snacks + tarta",
+  //     "Merienda + bolsa de snacks + tarta + bebida",
+  //     "Trae tu propia merienda coste adicional de 5€ ",
+  //   ],
+  //   "Snack option is required"
+  // ),
+  nameChild: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  phone: z.string().min(9, "Phone is required"),
+  phoneAdional: z.string().min(9, "Additional phone is required"),
+  nameParentOrMother: z.string().min(1, "Name is required"),
+  PostalCode: z.string().max(5, "Postal Code is required"),
+  observaatios: z.string().min(1, "Observations is required"),
 });
 
 const Reserva = () => {
+ 
   const {
     register,
     handleSubmit,
@@ -31,115 +65,269 @@ const Reserva = () => {
     formState: { errors },
     reset,
   } = useForm({
-    resolver: zodResolver(ReservaSchema)
+    resolver: zodResolver(ReservaSchema),
   });
+  const [showBookingConfirmation, setShowBookingConfirmation] = useState(false);
 
   const numChildren = watch("numChildren", 0);
-  const price = 16.90;
+  const price = 16.9;
   const [priceTotal, setPriceTotal] = useState(numChildren * price);
 
   useEffect(() => {
     setPriceTotal(numChildren * price);
   }, [numChildren]);
-  const [paymentData, setPaymentData] = useState(null);
 
-  const handlePaymentSubmit = (data) => {
-    setPaymentData(data);
-  };
+  const onSubmit = async (formData) => {
+  const parsed = ReservaSchema.safeParse(formData);
 
-  <PaymentForm onSubmit={handlePaymentSubmit} />
+  if (!parsed.success) {
+    console.error("Validation errors: ", parsed.error);
+    return;
+  }
 
-  async function onSubmit(formData) {
-    formData.priceTotal = priceTotal;
-    console.log("Enviando formulario", formData);
-    const functions = getFunctions();
-    const reservaFunction = httpsCallable(functions, "reservations");
-   
-    try {
-      const result = await sendReservationData(formData);
-      console.log("Reserva guardada con exito", result);
-      reset();
-    } catch (error) {
-      console.error("Error enviando los datos de la reserva: ", error);
-    }
-  }async function onSubmit(formData) {
-  const combinedData = {
-    ...formData,
-    priceTotal: priceTotal,
-    ...paymentData,
-    reset,
-  };
-
-  console.log("Enviando formulario", combinedData);
+  const validatedData = parsed.data;
+  console.log("Enviando formulario", validatedData);
   
   try {
-    await sendReservationData(combinedData);
-    console.log("Reserva guardada con éxito");
+    const docRef = await addDoc(collection(db, "reservations"), validatedData);
+    console.log("Document written with ID: ", docRef.id); 
     reset();
+    setShowBookingConfirmation(true); 
+  
   } catch (error) {
     console.error("Error enviando los datos de la reserva: ", error);
   }
-}
+};
 
   return (
-    <div className="w-full max-w-md  p-8 border rounded">
-      <h2 className="text-xl text-center font-bold mb-6">Realizar Reserva</h2>
-      <div className="max-w-md mx-auto bg-white p-6 shadow-md rounded-lg">
-      <PaymentForm onSubmit={handlePaymentSubmit} />
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-          <input
-            {...register("date")}
-            type="date"
-            className="w-full px-3 py-2 border rounded"
-          />
-          {errors.date && <p className="text-red-500">{errors.date.message}</p>}
-          <select
-            {...register("sectionSchedule")}
-            className="w-full px-3 py-2 border rounded bg-white text-black"
-          >
-            <option value="">Seleccione un tramo horario</option>
-            <option value="14-16">14:00 - 16:00</option>
-            <option value="16-18">16:00 - 18:00</option>
-            <option value="18-20">18:00 - 20:00</option>
-          </select>
-          {errors.sectionSchedule && <p className="text-red-500">{errors.sectionSchedule.message}</p>}
-          <label htmlFor="numChildren" className="block">
-            Número de niños
-            <input
-              {...register("numChildren", {
-                valueAsNumber: true,
-                min: { value: 1, message: "El número mínimo de niños es 1" },
-                max: { value: 40, message: "El número máximo de niños es 40" },
-              })}
-              type="number"
-              min="1"
-              max="40"
-              className="w-full px-3 py-2 border rounded"
-            />
-          </label>
-          {errors.numChildren && <p className="text-red-500">{errors.numChildren.message}</p>}
+    <div className="p-8 border rounded bg-background-image1  bg-cover bg-center">
+      <div className="max-w-4xl mx-auto bg-white p-6 shadow-lg rounded-lg  grid grid-flow-col-dense">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-8 grid grid-cols-4  items-center gap-8 text-center"
+        >
+          <div>
+            <label htmlFor="date" className="block">
+              Birthday date
+              <input
+                {...register("date")}
+                type="date"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+            {errors.date && (
+              <p className="text-red-500">{errors.date.message}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="numChildren" className="block">
+              Number of children
+              <input
+                {...register("numChildren", {
+                  valueAsNumber: true,
+                  min: { value: 1, message: "El número mínimo de niños es 1" },
+                  max: {
+                    value: 40,
+                    message: "El número máximo de niños es 40",
+                  },
+                })}
+                type="number"
+                min="1"
+                max="40"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+            {errors.numChildren && (
+              <p className="text-red-500">{errors.numChildren.message}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="sectionSchedule" className="block">
+              Select a time
+              <select
+                {...register("sectionSchedule")}
+                className="w-full px-3 py-2 border rounded bg-white text-black"
+              >
+                <option value="">Seleccione un tramo horario</option>
+                <option value="14-16">14:00 - 16:00</option>
+                <option value="16-18">16:00 - 18:00</option>
+                <option value="18-20">18:00 - 20:00</option>
+              </select>
+            </label>
+            {errors.sectionSchedule && (
+              <p className="text-red-500">{errors.sectionSchedule.message}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="agechild" className="block">
+              Childs age
+              <input
+                {...register("agechild", {
+                  valueAsNumber: true,
+                  min: { value: 1, message: "La edad mínima" },
+                  max: { value: 12, message: "La edad máxima es 12" },
+                })}
+                type="number"
+                min="1"
+                max="12"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+            {errors.agechild && (
+              <p className="text-red-500">{errors.agechild.message}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="nameChildren">
+              Childs name
+              <input
+                {...register("nameChild")}
+                type="text"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+            {errors.nameChild && (
+              <p className="text-red-500">{errors.nameChild.message}</p>
+            )}
+          </div>
+          <div>
+
+<label htmlFor="sectionSnack">Select a Snack</label>
+<select 
+  {...register("sectionSnack", { required: "Snack option is required" })} 
+  className="w-[192px] h-10 grid gap-7 m-2 px-2 py-2 border rounded bg-white text-black"
+>
+  <option value="">Seleccione un snack</option>
+  <option value="Merienda + bolsa de scnacks">Merienda + bolsa de snacks</option>
+  <option value="Merienda + bolsa de snacks + tarta">Merienda + bolsa de snacks + tarta</option>
+  <option value="Merienda + bolsa de snacks + tarta + bebida">Merienda + bolsa de snacks + tarta + bebida</option>
+  <option value="Trae tu propia merienda coste adicional de 5€">Trae tu propia merienda coste adicional de 5€</option>
+</select>
+
+{errors.sectionSnack && <p className="error">{errors.sectionSnack.message}</p>}d
+       
+          </div>
+          <div>
+            <label htmlFor="nameParentOrMother">
+              Parents name
+              <input
+                {...register("nameParentOrMother")}
+                type="text"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+            {errors.nameParentOrMother && (
+              <p className="text-red-500">
+                {errors.nameParentOrMother.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="telephono">
+              Phone
+              <input
+                {...register("phone", { required: true })}
+                type="text"
+                className="w-full px-3 py-2 border rounded"
+                placeholder="+34-123-456-789"
+              />
+            </label>
+            {errors.phone && (
+              <p className="text-red-500">{errors.phone.message}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="telephono">
+              Additional telephone
+              <input
+                {...register("phoneAdional", { required: true })}
+                type="text"
+                className="w-full px-3 py-2 border rounded"
+                placeholder="+34-123-456-789"
+              />
+            </label>
+            {errors.phoneAdional && (
+              <p className="text-red-500">{errors.phoneAdional.message}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="email">
+              Email
+              <input
+                {...register("email", { required: true })}
+                type="email"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+            {errors.email && (
+              <p className="text-red-500">{errors.email.message}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="confirmEmail">
+              Confirma el Email
+              <input
+                {...register("confirmEmail", {
+                  required: "Email confirmation is required",
+                })}
+                type="email"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+          </div>
+          <div>
+            <label htmlFor="">
+              Postal Code
+              <input
+                {...register("PostalCode", { required: true })}
+                type="text"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
           
-          <p className="text-lg">Precio total: {priceTotal.toFixed(2)}€</p>
+          {errors.PostalCode && (
+            <p className="text-red-500">{errors.PostalCode.message}</p>
+          )}
+         </div>
+         <div>
+            <label htmlFor="">
+              Observations
+              <textarea
+                {...register("observaatios")}
+                type="text"
+                className="w-full px-3 py-2 border rounded"
+              />
+            </label>
+          </div>
+          <p className="text-lg">Total Price : {priceTotal.toFixed(2)}€</p>
+
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="text-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Reservar
           </button>
+          {errors.date && <p>{errors.date.message}</p>}
         </form>
+
+        <BookingConfirmation
+          isOpen={showBookingConfirmation}
+          onClose={() => setShowBookingConfirmation(false)}
+        >
+          <p>Reserva realizada con éxito</p>
+        </BookingConfirmation>
       </div>
     </div>
   );
 };
 
-const sendReservationData = async (formData) => {
+async function sendReservationData(formData) {
   try {
     const docRef = await addDoc(collection(db, "reservations"), formData);
     console.log("Document written with ID: ", docRef.id);
-
   } catch (e) {
     console.error("Error adding document: ", e);
   }
-};
+}
 
 export default Reserva;

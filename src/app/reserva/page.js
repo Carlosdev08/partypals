@@ -1,14 +1,20 @@
 "use client";
-import React from 'react';
+import React from "react";
 import Reserva from "@/components/Reserva";
-import { FormContextProvider } from "@/context/FormContext";
+import {  Router, Route } from "react-router-dom";
 
+import { FormContextProvider } from "@/context/FormContext";
+import PaymentForm from "@/components/ui/PaymentForm";
 
 const Page = () => {
   return (
-    <FormContextProvider>
-        <Reserva />
-    </FormContextProvider>
+    <>
+      <div className="text-center">
+        <FormContextProvider>
+          <Reserva />
+        </FormContextProvider>
+      </div>
+    </>
   );
 };
 

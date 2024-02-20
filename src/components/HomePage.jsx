@@ -1,13 +1,15 @@
 import React from "react";
-import CalendarHome  from "@/components/ui/CalendarHome";
+
 import { FormContextProvider } from "@/context/FormContext";
 
 
 const HomePage = () => {
+
+
   return (
-    <FormContextProvider defaultValues={{}}>
+    <FormContextProvider defaultValues={{}} className="bg-background-image2  bg-cover bg-center">
     
-      <div className="  flex flex-col justify-center items-center text-center  min-h-sv ">
+      <div className="  flex flex-col justify-center items-center text-center  min-h-sv bg-background-image2  bg-cover bg-center">
         <div className=" bg-pink-800 text-white pt-5 w-1/2 h-1/2 rounded">
           <h1 className="text-4xl pb-2">Welcome to PartyPals</h1>
 
@@ -25,6 +27,7 @@ const HomePage = () => {
         </div>
        
       </div>
+      
       </FormContextProvider>
 
   );
