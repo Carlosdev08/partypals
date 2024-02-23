@@ -7,7 +7,7 @@ import { PartyPopper } from "lucide-react";
 import { CarouselPlugin } from "./ui/CarouselPlugin";
 import Image from "next/image";
 import React from "react";
-
+import Link from "next/link";
 const Eevent = () => {
   return (
     <div className="bg-background-image1  bg-cover bg-center">
@@ -51,6 +51,9 @@ const Eevent = () => {
             <span className="text-blue-900 text-center flex flex-col items-center justify-center mb-5 animate-bounce font-semibold font-sans text-2xl">
               !Tu evento en el mejor centro de ocio y diversión!
             </span>
+            <Link href="/reserva">
+            <button className="text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-3xl" style={{ animation: 'blink 1s infinite' }}>Book Now!</button>            
+            </Link>
           </div>
           <div className=" text-center text-2xl gap-10  animate-pulse">
             <p>
