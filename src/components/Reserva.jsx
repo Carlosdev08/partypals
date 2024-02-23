@@ -29,16 +29,16 @@ const ReservaSchema = z.object({
     .number()
     .min(1, "Age is required")
     .max(12, "The maximum age is 12"),
-    childrensnack: z.string().min(1, "Snack is required"),
-    sectionSnack: z.enum(
-      [
-        "Merienda bolsa de scnacks",
-        "Merienda bolsa de snacks, tarta",
-        "Merienda bolsa de snacks, tarta , bebida",
-        "Trae tu propia merienda coste adicional de 5€ ",
-      ],
-      "Snack option is required"
-    ),
+  // childrensnack: z.string().nonempty("Snack is required"),
+  // sectionSnack: z.enum(
+  //   [
+  //     "Merienda bolsa de scnacks",
+  //     "Merienda bolsa de snacks, tarta",
+  //     "Merienda bolsa de snacks, tarta , bebida",
+  //     "Trae tu propia merienda coste adicional de 5€ ",
+  //   ],
+  //   "Snack option is required"
+  // ),
   nameChild: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   phone: z.string().min(9, "Phone is required"),
