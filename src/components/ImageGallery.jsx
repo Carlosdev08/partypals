@@ -32,7 +32,7 @@ const ImageGallery = () => {
                 alt={image.alt}
                 width={image.width}
                 height={image.height}
-                className='w-full h-full object-cover transform transition duration-500 hover:scale-110' />
+                className='w-full  transform transition duration-500 hover:scale-110' />
             </div>
 
         ))}
