@@ -1,7 +1,7 @@
 import { auth } from "firebase-admin";
 import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
 import { Auth as authConfig } from "../../../lib/firebase-config";
 
 customInitApp();
@@ -77,22 +77,6 @@ async function handleEmailAndPassword(email, password){
     }
 }
 
-export async function POST(request, response){
-    try{
-        const {email, password} = await request.json();
-        if(!email || !password){
-            
-            const authorization = headers().get("authorization");
-            return await handleBearerToken(authorization);
-        }else{
-            return await handleEmailAndPassword(email, password);
-        }
-    }catch(error){
-        console.error("Error during login:", error);
-        return NextResponse.json({error: "Internal Server Error"}, {status: 500});
-    }
-
-}
 
 export async function GET(request) {
     const session = cookies().get("session")?.value || "";
@@ -102,7 +86,6 @@ export async function GET(request) {
       return NextResponse.json({ isLogged: false }, { status: 401 });
     }
   
-    //Use Firebase Admin to validate the session cookie
     const decodedClaims = await auth().verifySessionCookie(session, true);
   
     if (!decodedClaims) {

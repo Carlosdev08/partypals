@@ -6,15 +6,15 @@ import { collection, addDoc, onSnapshotsInSync } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { getAuth } from 'firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { db } from "@/lib/firebase-config";
-
 import PaymentForm from "@/components/ui/PaymentForm";
 import { useFormContextExtended } from "@/context/FormContext";
 import BookingConfirmation from "@/components/BookingConfirmation";
 import { set } from "date-fns";
 
 
-import { Button } from "@/components/ui/Button";
 
 const ReservaSchema = z.object({
   sectionSchedule: z.enum(
@@ -29,24 +29,16 @@ const ReservaSchema = z.object({
     .number()
     .min(1, "Age is required")
     .max(12, "The maximum age is 12"),
-  // _childrensnack: z.string().min(1, "Snack is required"),
-  // get childrensnack() {
-  //   return this._childrensnack;
-
-
-  // },
-  // set childrensnack(value) {
-  //   this._childrensnack = value;
-  // },
-  // sectionSnack: z.enum(
-  //   [
-  //     "Merienda + bolsa de scnacks",
-  //     "Merienda + bolsa de snacks + tarta",
-  //     "Merienda + bolsa de snacks + tarta + bebida",
-  //     "Trae tu propia merienda coste adicional de 5€ ",
-  //   ],
-  //   "Snack option is required"
-  // ),
+    childrensnack: z.string().min(1, "Snack is required"),
+    sectionSnack: z.enum(
+      [
+        "Merienda bolsa de scnacks",
+        "Merienda bolsa de snacks, tarta",
+        "Merienda bolsa de snacks, tarta , bebida",
+        "Trae tu propia merienda coste adicional de 5€ ",
+      ],
+      "Snack option is required"
+    ),
   nameChild: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   phone: z.string().min(9, "Phone is required"),
@@ -57,7 +49,7 @@ const ReservaSchema = z.object({
 });
 
 const Reserva = () => {
- 
+
   const {
     register,
     handleSubmit,
@@ -66,10 +58,11 @@ const Reserva = () => {
     reset,
   } = useForm({
     resolver: zodResolver(ReservaSchema),
+    
   });
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false);
 
-  const numChildren = watch("numChildren", 0);
+  const numChildren = watch("numChildren", 1);
   const price = 16.9;
   const [priceTotal, setPriceTotal] = useState(numChildren * price);
 
@@ -77,7 +70,16 @@ const Reserva = () => {
     setPriceTotal(numChildren * price);
   }, [numChildren]);
 
+  const auth = getAuth();
+const [user] = useAuthState(auth);
+
+
   const onSubmit = async (formData) => {
+    if(!user){
+      alert("No user logged in");
+      return;
+    
+    };
   const parsed = ReservaSchema.safeParse(formData);
 
   if (!parsed.success) {
@@ -99,22 +101,28 @@ const Reserva = () => {
   }
 };
 
+
+
+
   return (
-    <div className="p-8 border rounded bg-background-image1  bg-cover bg-center">
+    <div className="p-8 border rounded bg-background-image1  bg-cover bg-center mb-20 ">
+    <h2 className="text-3xl font-semibold text-blue-950  font-Outfit animate-bounce mt-20">Fill in the reservation details</h2>
       <div className="max-w-4xl mx-auto bg-white p-6 shadow-lg rounded-lg  grid grid-flow-col-dense">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-8 grid grid-cols-4  items-center gap-8 text-center"
+          className="space-y-8 grid grid-cols-4  items-center gap-8 text-center justify-center font-outfit font-medium text-base"
         >
           <div>
-            <label htmlFor="date" className="block">
+            <label htmlFor="date" className="block pt-7 hover:border-2  hover:border-blue-500 hover:bg-blue-300 " title="Select the birthday date" >
               Birthday date
               <input
                 {...register("date")}
                 type="date"
-                className="w-full px-3 py-2 border rounded"
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-3 py-2 border rounded text-center"
               />
             </label>
+            
             {errors.date && (
               <p className="text-red-500">{errors.date.message}</p>
             )}
@@ -126,7 +134,7 @@ const Reserva = () => {
                 {...register("numChildren", {
                   valueAsNumber: true,
                   min: { value: 1, message: "El número mínimo de niños es 1" },
-                  max: {
+                  max: { 
                     value: 40,
                     message: "El número máximo de niños es 40",
                   },
@@ -192,19 +200,19 @@ const Reserva = () => {
           </div>
           <div>
 
-<label htmlFor="sectionSnack">Select a Snack</label>
+<label htmlFor="sectionSnack">Select a Snack
 <select 
-  {...register("sectionSnack", { required: "Snack option is required" })} 
+  {...register("sectionSnack", { required: true }) }
   className="w-[192px] h-10 grid gap-7 m-2 px-2 py-2 border rounded bg-white text-black"
 >
   <option value="">Seleccione un snack</option>
-  <option value="Merienda + bolsa de scnacks">Merienda + bolsa de snacks</option>
-  <option value="Merienda + bolsa de snacks + tarta">Merienda + bolsa de snacks + tarta</option>
-  <option value="Merienda + bolsa de snacks + tarta + bebida">Merienda + bolsa de snacks + tarta + bebida</option>
-  <option value="Trae tu propia merienda coste adicional de 5€">Trae tu propia merienda coste adicional de 5€</option>
+  <option value="Merienda bolsa de scnacks">Merienda bolsa de scnacks</option>
+          <option value="Merienda bolsa de snacks, tarta">Merienda bolsa de snacks, tarta</option>
+          <option value="Merienda bolsa de snacks, tarta , bebida">Merienda bolsa de snacks, tarta , bebida</option>
+          <option value="Trae tu propia merienda coste adicional de 5€ ">Trae tu propia merienda coste adicional de 5€ </option>
 </select>
-
-{errors.sectionSnack && <p className="error">{errors.sectionSnack.message}</p>}d
+</label>
+{errors.sectionSnack && <p>{errors.sectionSnack.message}</p>}
        
           </div>
           <div>
@@ -299,8 +307,7 @@ const Reserva = () => {
               />
             </label>
           </div>
-          <p className="text-lg">Total Price : {priceTotal.toFixed(2)}€</p>
-
+          <p className="text-lg">Total Price : {(Number(priceTotal) || 0).toFixed(2)}€</p>
           <button
             type="submit"
             className="text-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

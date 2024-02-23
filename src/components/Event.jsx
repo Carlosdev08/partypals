@@ -15,7 +15,7 @@ const Eevent = () => {
   return (
     <div className="bg-background-image1  bg-cover bg-center">
       <div className="flex justify-center items-center min-h-sv pb-8 mt-3 ">
-        <div className=" bg-[#22251c] text-white pt-5 w-1/2 h-1/2 rounded">
+        <div className=" bg-blue-600 text-white pt-5 w-1/2 h-1/2 rounded">
           <div className="flex items-center justify-center gap-1 p-1">
             <h1 className="text-3xl ">Celebra tus eventos con PartyPals </h1>
             <PartyPopper size={10} color="white" />
