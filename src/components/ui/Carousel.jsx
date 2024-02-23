@@ -154,7 +154,7 @@ const CarouselPrevious = React.forwardRef(({ className, variant = "outline", siz
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
 
   return (
-    (<Button
+    (<button
       ref={ref}
       variant={variant}
       size={size}
@@ -166,7 +166,7 @@ const CarouselPrevious = React.forwardRef(({ className, variant = "outline", siz
       {...props}>
       <ArrowLeft className="h-4 w-4" />
       <span className="sr-only">Previous slide</span>
-    </Button>)
+    </button>)
   );
 })
 CarouselPrevious.displayName = "CarouselPrevious"
