@@ -1,11 +1,8 @@
 "use client";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "@/components/ui/Carousel";
+
+
+
+
 import { PartyPopper } from "lucide-react";
 import { CarouselPlugin } from "./ui/CarouselPlugin";
 import Image from "next/image";

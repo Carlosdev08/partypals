@@ -1,20 +1,13 @@
+import Event from "@/components/Event";
 
-
-import Event from '@/components/Event'
-
-import React from 'react'
-
-
+import React from "react";
 
 const page = () => {
   return (
     <>
-  
-   <Event/>
-
+      <Event />
     </>
-   
-  )
-}
+  );
+};
 
-export default page
+export default page;
