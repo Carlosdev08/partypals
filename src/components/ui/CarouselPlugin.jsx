@@ -8,7 +8,7 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "../ui/Carousel"
 
 export function CarouselPlugin({ children }) { 
     const plugin = React.useRef(
