@@ -1,39 +1,36 @@
-"use client";
 
-import { ca } from "date-fns/locale";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+const admin = require('@/lib/firebaseAdmin');
 
+async function verifyToken(token) {
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    return { uid: decodedToken.uid, authenticated: true };
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return { authenticated: false };
+  }
+}
 
 export default async function handler(req, res) {
-    if (req.method !== "POST") {
-        console.log(req.method);
+  const token = req.headers.authorization?.split('Bearer ')[1];
 
-      return res.status(405).json({ error: "Method not allowed" });
-    }
-  
-    try {
-      const { email, password } = req.body;
-      if (!email || !password) {
-        return res.status(400).json({ error: "Email or password is empty" });
-      }
-      
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-    
-      res.status(200).json({ message: 'Success' });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+  if (!token) {
+    return res.status(401).json({ error: 'Token not provided' });
   }
 
-async function registerUser(email, password) {
-    const auth = getAuth();
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        return { success: true, user: userCredential.user };
-    } catch (error) {
-        console.error("Error in createUserWithEmailAndPassword:", error);
-        return { success: false, error: error.message };
-    }
+  const { authenticated, uid } = await verifyToken(token);
+
+  if (!authenticated) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  // Si el usuario está autenticado, procede con tu lógica de negocio
+  // Por ejemplo, obtener documentos de Firestore
+  const db = admin.firestore();
+  const collectionRef = db.collection('reservations');
+  const snapshot = await collectionRef.get();
+  const docs = snapshot.docs.map(doc => doc.data());
+
+  // Envía los documentos como respuesta
+  res.status(200).json(docs);
 }

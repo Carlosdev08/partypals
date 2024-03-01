@@ -1,8 +1,9 @@
 "use client";
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 import { signInWithRedirect } from "firebase/auth";
 import { GoogleAuthProvider } from 'firebase/auth';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 import { auth, provider } from "@/lib/firebase-config";
@@ -12,36 +13,28 @@ import CommonForm from "@/components/CommonForm";
 
 export default function Page() {
   const router = useRouter();
-  const { formState: { errors } } = useForm();
+  const { handleSubmit } = useForm();
   const [error, setError] = useState('');
 
-  const onSubmit = async (data) => {
-    if (data.password !== data.confirmPassword) {
+  const onSubmit = async ({ email, password, confirmPassword }) => {
+    if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
 
-    try {
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        console.log(result);
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
         router.push('/reserva');
-      } else {
-        const errorResponse = await res.json();
-        setError(errorResponse.error || 'Registration failed. Please check your credentials.');
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
-    }
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
   };
+  useEffect(() => {
+    console.log(auth.currentUser);
+  }, []);
+
 
   function signInWithGoogle() {
     signInWithRedirect(auth, provider);
@@ -53,10 +46,10 @@ export default function Page() {
       <section className="flex flex-col md:flex-row h-screen items-center">
         <div className="bg-indigo-600 hidden lg:block w-full md:w-1/2 xl:w-2/3 h-screen">
           <Image
-            width={200}
-            height={200}
-            src="https://source.unsplash.com/random"
-            alt=""
+            width={400}
+            height={400}
+            src="/salonEvento.png"
+            alt="pary"
             className="w-full h-full object-cover"
           />
         </div>
@@ -88,7 +81,7 @@ export default function Page() {
             <p className="mt-8">
               Need an account?{" "}
               <a
-                href="#"
+                href="/login"
                 className="text-blue-500 hover:text-blue-700 font-semibold"
               >
                 Login

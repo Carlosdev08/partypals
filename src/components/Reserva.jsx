@@ -113,7 +113,7 @@ const [user] = useAuthState(auth);
           className="space-y-8 grid grid-cols-4  items-center gap-8 text-center justify-center font-outfit font-medium text-base"
         >
           <div>
-            <label htmlFor="date" className="block pt-7 hover:border-2  hover:border-blue-500 hover:bg-blue-300 " title="Select the birthday date" >
+            <label htmlFor="date" className="block pt-7  " title="Select the birthday date" >
               Birthday date
               <input
                 {...register("date")}
