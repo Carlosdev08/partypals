@@ -49,12 +49,9 @@ const Eevent = () => {
             Your event in the best leisure and fun center in your city!
             </span>
             <Link href="/reserva">
-              <button
-                className="text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-3xl font-semibold font-outfit"
-                style={{ animation: "blink 5s infinite" }}
-              >
-                Book Now!
-              </button>
+            <button className="cursor-pointer transition-all bg-gray-700 text-white px-6 py-2 rounded-lg border-green-400 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] hover:shadow-xl hover:shadow-green-300 shadow-green-300 active:shadow-none">
+            Book Now!
+    </button>  
             </Link>
           </div>
           <div className=" text-center text-2xl gap-10  animate-pulse">

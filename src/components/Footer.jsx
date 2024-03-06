@@ -27,9 +27,9 @@ const Footer = () => {
           </div>
           
         </nav>
-        <div className="mt-1 flex items-center justify-between border-t border-gray-700 pt-8"></div>
+        <div className="mt-1 flex items-center justify-center border-t border-gray-700 pt-6">
       </div>
-      <div class="card">
+      <div class="card" className="flex justify-between">
   <a class="socialContainer containerOne" href="#">
     <svg viewBox="0 0 16 16" class="socialSvg instagramSvg">
       <path
@@ -62,7 +62,7 @@ const Footer = () => {
     </svg>
   </a>
 </div>
-
+</div>
     </footer>
     
   );

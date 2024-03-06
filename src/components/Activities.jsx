@@ -125,9 +125,9 @@ const closeModal = () => {
 
 return (
   <div className="mb-40">
-    <h1 className="text-center text-6xl font-bold mt-40">¡Nuestro Evento diseñado para tus hijos!</h1>
+    <h1 className="text-center text-6xl font-bold mt-40   ">¡Nuestro Evento diseñado para tus hijos!</h1>
 
-    <div className='grid grid-cols-1 m:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 gap-8'>
+    <div className='grid grid-cols-1 m:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 gap-8 rounded'>
       {images.map((image, index) => (
         <div 
           key={index} 
@@ -142,7 +142,7 @@ return (
                 objectFit='cover'
               />
             </div>
-            <div className='card-back bg-orange-900 text-center flex justify-center'>
+            <div className='card-back bg-orange-900 text-center flex justify-center rounded w-full '>
               <p className="text-xs ">{image.description}</p>
             </div>
           </div>
