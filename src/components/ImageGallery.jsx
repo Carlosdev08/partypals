@@ -6,7 +6,7 @@ import Image from 'next/image'
 const images = [
 
     {src: "/Parque_bolas.png", alt: "Parque Infantil", width: 800, height:800 },
-    {src: "/salon de fiesta.png", alt: "Parque Infantil", width: 800, height: 1800},
+    {src: "/salon de fiesta.png", alt: "Parque Infantil", width: 800, height: 800},
     {src: "/salonEvento.png", alt: "Parque Infantil", width: 800, height: 800},
     {src: "/JuegoDardos.png", alt: "Parque Infantil", width: 900, height: 900},
     {src: "/bolas.jpg", alt: "Parque Infantil", width: 900, height: 900},
